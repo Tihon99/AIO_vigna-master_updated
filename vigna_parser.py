@@ -79,6 +79,7 @@ def aio_transfrom_to_square(folder):
     for filename in os.listdir(folder):
         img = cv.imread(os.path.join(folder, filename))
         img = cv.resize(img, (32, 32), cv.INTER_NEAREST)
+        cv.imwrite(os.path.join('C:/Users/ashab/PycharmProjects/AIO_vigna-master_updated/AIO_summer_square', filename), img)
 
 def aio_transform(filename_vigna, filename_weather):
     weather = get_weather_information(filename_weather)
