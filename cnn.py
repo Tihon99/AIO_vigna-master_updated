@@ -26,9 +26,7 @@ from keras.utils.np_utils import to_categorical
 import keras_tuner as kt
 import matplotlib.pyplot as plt
 from tensorflow.python.keras import backend as K
-#Test_1
-#Test_2_Ar
-#Test_3_An
+
 original_classes = [
     [0, 23, 31],
     [1, 34, 40],  # !!!
@@ -109,44 +107,30 @@ def load_images_from_folder(folder):
                     labels.append(np.uint8(i[0]))
                     images.append(np.asarray(img).astype(np.float32))
                     days.append(int(flowering_time))
-    return np.asarray(images), np.asarray(labels)
+    return np.asarray(images), np.asarray(days)
 
 
 def build_model():
     classification_model = Sequential()
-    #поставить правильный размер и в последующих слоях
-    classification_model.add(Conv2D(32, kernel_size=(3, 3), padding='same', strides=(1, 1), input_shape=(5, 28, 3),
-                                    activation=hp.Choice(
-                                        'first_conv2d_activation',
-                                        ['relu', 'tanh'],
-                                    )))
-    if hp.Boolean("need_batch_norm_after_first_conv2d"):
-        classification_model.add(BatchNormalization())
+    classification_model.add(Conv2D(32, kernel_size=(5, 5), padding='same', strides=(1, 1), input_shape=(28, 5, 3),
+                                    activation='relu'))
+
     classification_model.add(MaxPooling2D(pool_size=(2, 2)))
 
-    classification_model.add(Conv2D(hp.Int(
-        'second_conv2d_out_channels',
-        min_value=32,
-        max_value=64,
-        step=32,
-    ), kernel_size=(3, 3), padding='same', strides=(1, 1), input_shape=(2, 11, 32),
-        activation=hp.Choice(
-            'second_conv2d_activation',
-            ['relu', 'tanh'],
-        )))
-    if hp.Boolean("need_batch_norm_after_second_conv2d"):
-        classification_model.add(BatchNormalization())
+    classification_model.add(Conv2D(64, kernel_size=(3, 3), padding='same', strides=(1, 1), activation='relu'))
+
     classification_model.add(MaxPooling2D(pool_size=(2, 2)))
 
     classification_model.add(Flatten(name='flatten'))
-    classification_model.add(Dense(128, activation='relu')) #128 могут проблемы, поэтому нужно попробовать разные слои
-    #classification_model.add(Dense(11, activation='softmax'))
-    classification_model.add(Dense(1, activation='softmax'))#поменять функцию активации на линейную
 
+    classification_model.add(Dense(128, activation='relu'))
+    classification_model.add(Dense(64, activation='relu'))
+
+    classification_model.add(Dense(1, activation='relu'))
 
     classification_model.compile(optimizer='adam',
-                                 loss='categorical_crossentropy', #поменять на функцию потерь для пресказания вещественного числа(mse, mae)
-                                 metrics=['accuracy']) #если взять mae, то можно брать mse
+                                 loss='mean_squared_error',
+                                 metrics=['mean_squared_error'])
     classification_model.summary()
 
     return classification_model
@@ -185,8 +169,8 @@ def plot_confusion(confusion_mat):
 
 
 def plot_accuracy(history, fold):
-    acc = history.history['accuracy']
-    val_acc = history.history['val_accuracy']
+    acc = history.history['mean_squared_error']
+    val_acc = history.history['val_mean_squared_error']
 
     loss = history.history['loss']
     val_loss = history.history['val_loss']
@@ -219,26 +203,16 @@ def train():
     # train_images, train_labels = data_images[:1125], data_labels[:1125]
     # test_images, test_labels = data_images[1125:], data_labels[1125:]
 
-    data_images, data_labels = load_images_from_folder(
-        '/Users/1/Desktop/AIO_vigna-master/AIO_summer')
-    train_images, train_labels = data_images[:750], data_labels[:750]
-    test_images, test_labels = data_images[750:], data_labels[750:]
+    data_images, date_flowering_times = load_images_from_folder(
+        'C:/Users/1/PycharmProjects/AIO_vigna-master_updated/AIO_summer')
+    train_images, train_flowering_times = data_images[:750], date_flowering_times[:750]
+    test_images, test_flowering_times = data_images[750:], date_flowering_times[750:]
 
     train_images = train_images / 255.0
     test_images = test_images / 255.0
-    train_vectors = to_categorical(train_labels, 11)
-    test_vectors = to_categorical(test_labels, 11)
+    train_vectors = train_flowering_times.reshape(train_flowering_times.size, 1)
+    test_vectors = test_flowering_times.reshape(test_flowering_times.size, 1)
 
-    tuner = kt.RandomSearch(
-        build_model,
-        objective='val_loss',
-        max_trials=6,
-        seed=1234,
-        overwrite=True
-    )
-    #tuner.search(train_images, train_vectors, epochs=15, batch_size=64, validation_split=0.2)
-    #tuner.results_summary()
-    #нужно убрать hp из каждjq функции и поставить праметры вручную
     best_model = build_model()
 
     num_folds = 10
@@ -248,12 +222,13 @@ def train():
     loss_per_fold = []
 
     data_images = data_images / 255.0
-    data_vector = data_labels
+    data_vector = date_flowering_times.reshape(date_flowering_times.size, 1)
+    print(data_vector)
 
     # Define the K-fold Cross Validator
     fold_no = 1
     kfold = KFold(n_splits=num_folds, shuffle=True)
-    for tr, valid in kfold.split(train_images, train_labels):
+    for tr, valid in kfold.split(train_images, train_flowering_times):
         print('------------------------------------------------------------------------')
         print(f'Training for fold {fold_no} ...')
         history = best_model.fit(data_images[tr], data_vector[tr],
@@ -271,7 +246,7 @@ def train():
         loss_per_fold.append(scores[0])
         fold_no = fold_no + 1
 
-        print(data_labels[valid])
+        print(date_flowering_times[valid])
         print(np.argmax(best_model.predict(data_images[valid]), axis=-1))
         '''
         #cconfusion = confusion_matrix(data_labels[valid], np.argmax(best_model.predict(data_images[valid]), axis=-1))
@@ -284,7 +259,6 @@ def train():
         fig.savefig('./confusion_matrix-val.png')
         plt.show()
         '''
-
 
     # == Provide average scores ==
     print('------------------------------------------------------------------------')
@@ -301,13 +275,13 @@ def train():
     '''
     confusion = confusion_matrix(test_labels, np.argmax(best_model.predict(test_images), axis=-1))
     print(confusion)
-    
+
     test_acc = accuracy_score(test_labels, np.argmax(best_model.predict(test_images), axis=-1))
     print(test_acc)
-    
+
     MCC = matthews_corrcoef(test_labels, np.argmax(best_model.predict(test_images), axis=-1))
     print(MCC)
-  
+
     plot_confusion(confusion)
     '''
     # plot_saliency()
