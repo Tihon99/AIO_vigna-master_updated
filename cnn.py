@@ -126,11 +126,11 @@ def build_model():
     classification_model.add(Dense(128, activation='relu'))
     classification_model.add(Dense(64, activation='relu'))
 
-    classification_model.add(Dense(1, activation='relu'))
+    classification_model.add(Dense(1, activation='linear'))
 
     classification_model.compile(optimizer='adam',
                                  loss='mean_squared_error',
-                                 metrics=['mean_squared_error'])
+                                 metrics=['mae'])
     classification_model.summary()
 
     return classification_model
@@ -169,8 +169,8 @@ def plot_confusion(confusion_mat):
 
 
 def plot_accuracy(history, fold):
-    acc = history.history['mean_squared_error']
-    val_acc = history.history['val_mean_squared_error']
+    acc = history.history['mae']
+    val_acc = history.history['val_mae']
 
     loss = history.history['loss']
     val_loss = history.history['val_loss']
