@@ -112,7 +112,7 @@ def load_images_from_folder(folder):
 
 def build_model():
     classification_model = Sequential()
-    classification_model.add(Conv2D(32, kernel_size=(5, 5), padding='same', strides=(1, 1), input_shape=(28, 5, 3),
+    classification_model.add(Conv2D(32, kernel_size=(5, 5), padding='same', strides=(1, 1), input_shape=(32, 32, 3),
                                     activation='relu'))
 
     classification_model.add(MaxPooling2D(pool_size=(2, 2)))
@@ -204,7 +204,7 @@ def train():
     # test_images, test_labels = data_images[1125:], data_labels[1125:]
 
     data_images, date_flowering_times = load_images_from_folder(
-        'C:/Users/1/PycharmProjects/AIO_vigna-master_updated/AIO_summer')
+        'C:/Users/Арина/PycharmProjects/AIO_vigna-master_updated/AIO_summer_square')
     train_images, train_flowering_times = data_images[:750], date_flowering_times[:750]
     test_images, test_flowering_times = data_images[750:], date_flowering_times[750:]
 
