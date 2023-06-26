@@ -204,7 +204,7 @@ def train():
     # test_images, test_labels = data_images[1125:], data_labels[1125:]
 
     data_images, date_flowering_times = load_images_from_folder(
-        'C:/Users/Арина/PycharmProjects/AIO_vigna-master_updated/AIO_summer_square')
+        'C:/Users/1/Desktop/AIO_vigna-master_updated/AIO_summer_square')
     train_images, train_flowering_times = data_images[:750], date_flowering_times[:750]
     test_images, test_flowering_times = data_images[750:], date_flowering_times[750:]
 
@@ -236,7 +236,7 @@ def train():
                                  epochs=80,
                                  verbose=verbosity,
                                  validation_split=0.2)
-        # plot_accuracy(history, fold_no)
+        #plot_accuracy(history, fold_no)
 
         # Generate generalization metrics
         scores = best_model.evaluate(data_images[valid], data_vector[valid], verbose=0)
