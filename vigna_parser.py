@@ -2,6 +2,7 @@ import h5py
 from PIL import Image
 import numpy as np
 import cv2 as cv
+import os
 
 
 def convert_weather_value_to_px(left_border, value):
@@ -73,6 +74,11 @@ def get_vigna_information(filename):
 брать массив фалйы и заполнять квадрат теми данные которыми она ссчитала ищ предыдщуего изображения и записывает в новое изображени
 создать новую сетку
 '''
+
+def aio_transfrom_to_square(folder):
+    for filename in os.listdir(folder):
+        img = cv.imread(os.path.join(folder, filename))
+        img = cv.resize(img, (32, 32), cv.INTER_NEAREST)
 
 def aio_transform(filename_vigna, filename_weather):
     weather = get_weather_information(filename_weather)
