@@ -1,15 +1,31 @@
-import logging
-import os
-
-import cv2 as cv
-import matplotlib.pyplot as plt
+import h5py
 import numpy as np
+from PIL import Image
+import scipy
+import logging
 import seaborn as sns
+from sklearn.metrics import matthews_corrcoef
+
+from sklearn.metrics import auc
+from sklearn.metrics import accuracy_score
 # from vis.visualization import visualize_saliency
-from sklearn.cross_validation import KFold
-from tensorflow.python.keras import backend as K
-from tensorflow.python.keras.layers import (Conv2D, MaxPooling2D, Flatten, Dense)
+from sklearn.model_selection import KFold
+from sklearn.metrics import confusion_matrix
+
+import numpy as np
+import os
+import cv2 as cv
+
+import tensorflow as tf
+from tensorflow import keras
+
 from tensorflow.python.keras.models import Sequential
+from tensorflow.python.keras.layers import (Conv2D, MaxPooling2D, Flatten, Dense)
+from keras.layers.normalization.batch_normalization import BatchNormalization
+from keras.utils.np_utils import to_categorical
+import keras_tuner as kt
+import matplotlib.pyplot as plt
+from tensorflow.python.keras import backend as K
 
 original_classes = [
     [0, 23, 31],
@@ -110,11 +126,11 @@ def build_model():
     classification_model.add(Dense(128, activation='relu'))
     classification_model.add(Dense(64, activation='relu'))
 
-    classification_model.add(Dense(1, activation='linear'))
+    classification_model.add(Dense(1, activation='relu'))
 
     classification_model.compile(optimizer='adam',
                                  loss='mean_squared_error',
-                                 metrics=['mae'])
+                                 metrics=['mean_squared_error'])
     classification_model.summary()
 
     return classification_model
@@ -153,8 +169,8 @@ def plot_confusion(confusion_mat):
 
 
 def plot_accuracy(history, fold):
-    acc = history.history['mae']
-    val_acc = history.history['val_mae']
+    acc = history.history['mean_squared_error']
+    val_acc = history.history['val_mean_squared_error']
 
     loss = history.history['loss']
     val_loss = history.history['val_loss']
@@ -188,7 +204,7 @@ def train():
     # test_images, test_labels = data_images[1125:], data_labels[1125:]
 
     data_images, date_flowering_times = load_images_from_folder(
-        'C:/Users/1/Desktop/AIO_vigna-master_updated/AIO_summer_square')
+        'C:/Users/anyac/PycharmProjects/AIO_vigna-master_updated/AIO_summer_square')
     train_images, train_flowering_times = data_images[:750], date_flowering_times[:750]
     test_images, test_flowering_times = data_images[750:], date_flowering_times[750:]
 
@@ -220,7 +236,7 @@ def train():
                                  epochs=80,
                                  verbose=verbosity,
                                  validation_split=0.2)
-        #plot_accuracy(history, fold_no)
+        # plot_accuracy(history, fold_no)
 
         # Generate generalization metrics
         scores = best_model.evaluate(data_images[valid], data_vector[valid], verbose=0)
