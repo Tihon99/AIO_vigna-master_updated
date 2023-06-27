@@ -1,31 +1,15 @@
-import h5py
-import numpy as np
-from PIL import Image
-import scipy
 import logging
-import seaborn as sns
-from sklearn.metrics import matthews_corrcoef
-
-from sklearn.metrics import auc
-from sklearn.metrics import accuracy_score
-# from vis.visualization import visualize_saliency
-from sklearn.model_selection import KFold
-from sklearn.metrics import confusion_matrix
-
-import numpy as np
 import os
+
 import cv2 as cv
-
-import tensorflow as tf
-from tensorflow import keras
-
-from tensorflow.python.keras.models import Sequential
-from tensorflow.python.keras.layers import (Conv2D, MaxPooling2D, Flatten, Dense)
-from keras.layers.normalization.batch_normalization import BatchNormalization
-from keras.utils.np_utils import to_categorical
-import keras_tuner as kt
 import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+# from vis.visualization import visualize_saliency
+from sklearn.cross_validation import KFold
 from tensorflow.python.keras import backend as K
+from tensorflow.python.keras.layers import (Conv2D, MaxPooling2D, Flatten, Dense)
+from tensorflow.python.keras.models import Sequential
 
 original_classes = [
     [0, 23, 31],
