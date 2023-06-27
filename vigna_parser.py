@@ -99,7 +99,7 @@ def aio_transform_to_square(folder):
 
                 pixels[j, i] = old_pixels[ni, nj]
                 ni += 1
-        img.save(os.path.join('C:/Users/anyac/PycharmProjects/AIO_vigna-master_updated/AIO_summer_square', filename))
+        img.save(os.path.join('C:/Users/ashab/PycharmProjects/AIO_vigna-master_updated/AIO_summer_square', filename))
 
 def aio_transform(filename_vigna, filename_weather):
     weather = get_weather_information(filename_weather)
