@@ -69,11 +69,14 @@ def get_vigna_information(filename):
         for vigna in vigna_info:
             summer_plants.append(vigna) if vigna[0] < 240 else winter_plants.append(vigna)
         return summer_plants, winter_plants
+
+
 '''
 функция считывания png через (numpy, opencv) того размера который есть
 брать массив фалйы и заполнять квадрат теми данные которыми она ссчитала ищ предыдщуего изображения и записывает в новое изображени
 создать новую сетку
 '''
+
 
 def aio_transform_to_square(folder):
     for filename in os.listdir(folder):
@@ -99,7 +102,8 @@ def aio_transform_to_square(folder):
 
                 pixels[j, i] = old_pixels[ni, nj]
                 ni += 1
-        img.save(os.path.join('C:/Users/ashab/PycharmProjects/AIO_vigna-master_updated/AIO_summer_square', filename))
+        img.save(os.path.join('C:/Users/1/Desktop/AIO_vigna-master_updated/AIO_summer_square', filename))
+
 
 def aio_transform(filename_vigna, filename_weather):
     weather = get_weather_information(filename_weather)
@@ -107,7 +111,7 @@ def aio_transform(filename_vigna, filename_weather):
 
     all_vigna = summer_planted_vigna + winter_planted_vigna
     for plant in summer_planted_vigna:
-    #for plant in all_vigna:
+        # for plant in all_vigna:
         pixels = []
         snp_pixels = []
         for snp in plant[2]:
